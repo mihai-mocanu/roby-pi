@@ -1,5 +1,6 @@
 from chatterbot import ChatBot
 from chatterbot.utils import input_function
+import speech_recognition as sr
 import pyttsx
 import logging
 
@@ -28,8 +29,21 @@ print('Type something to begin...')
 
 while True:
     try:
-        input_statement = robyBot.input.process_input_statement()
-        statement, response, confidence = robyBot.generate_response(input_statement)
+#        input_statement = robyBot.input.process_input_statement()
+	r = sr.Recognizer()
+	with sr.Microphone() as source:
+	    print("Say something!")
+	    audio = r.listen(source)
+	# recognize speech using Sphinx CMU
+	try:
+	    inputSR = r.recognize_sphinx(audio)
+            statement, response, confidence = robyBot.generate_response(inputSR)
+	    textToSpeech.say(response)
+	    textToSpeech.runAndWait()
+	except sr.UnknownValueError:
+	    response = "Sphinx could not understand audio"
+	except sr.RequestError as e:
+	    response = "Sphinx error; {0}".format(e)
 	textToSpeech.say(response)
 	textToSpeech.runAndWait()
 
